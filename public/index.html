@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinic Intern Attendance</title>
+<style>
+:root{--p:#4f46e5;--ph:#4338ca;--pb:#eef2ff;--ok:#059669;--okb:#d1fae5;--wn:#d97706;--wnb:#fef3c7;--er:#dc2626;--erb:#fee2e2;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g500:#6b7280;--g700:#374151;--g900:#111827;--r:12px;--s:0 1px 3px rgba(0,0,0,.08);--sl:0 10px 25px rgba(0,0,0,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+
+.header{background:#fff;border-bottom:1px solid var(--g200);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:18px;font-weight:700;color:var(--p)}
+.header-right{display:flex;align-items:center;gap:12px;font-size:13px}
+.header-user{font-weight:600;color:var(--g700)}
+.logout-btn{padding:6px 14px;border:1px solid var(--g200);background:#fff;border-radius:6px;font-size:13px;cursor:pointer}
+
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2)}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:400px;max-width:92vw;box-shadow:var(--sl)}
+.login-box h2{font-size:22px;text-align:center;margin-bottom:6px}
+.login-box .sub{text-align:center;color:var(--g500);font-size:14px;margin-bottom:28px}
+.login-box label{display:block;font-size:13px;font-weight:500;color:var(--g700);margin-bottom:6px}
+.login-box select,.login-box input[type="password"]{width:100%;padding:11px 14px;border:1px solid var(--g200);border-radius:8px;font-size:14px;margin-bottom:16px;outline:none}
+.role-tabs{display:flex;gap:4px;background:var(--g100);padding:4px;border-radius:8px;margin-bottom:20px}
+.role-tab{flex:1;padding:9px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:500;color:var(--g500);cursor:pointer;text-align:center;transition:all .2s}
+.role-tab.active{background:#fff;color:var(--p);box-shadow:var(--s)}
+.login-btn{width:100%;padding:12px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.login-btn:hover{background:var(--ph)}
+.login-error{background:var(--erb);color:var(--er);padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.login-error.show{display:block}
+.gps-status{text-align:center;font-size:13px;padding:10px;border-radius:8px;margin-bottom:16px}
+.gps-checking{background:var(--wnb);color:var(--wn)}
+.gps-ok{background:var(--okb);color:var(--ok)}
+.gps-fail{background:var(--erb);color:var(--er)}
+
+.container{max-width:960px;margin:0 auto;padding:24px}
+.tabs{display:flex;gap:4px;background:var(--g100);padding:4px;border-radius:10px;margin-bottom:24px}
+.tab-btn{flex:1;padding:10px;border:none;background:transparent;border-radius:8px;font-size:14px;font-weight:500;color:var(--g500);cursor:pointer;transition:all .2s}
+.tab-btn.active{background:#fff;color:var(--p);box-shadow:var(--s)}
+.tab-content{display:none}.tab-content.active{display:block}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--s);padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600;color:var(--g700);margin-bottom:16px}
+
+.clock-display{text-align:center;padding:20px 0}
+.big-time{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;margin:8px 0}
+.big-date{font-size:15px;color:var(--g500);margin-bottom:20px}
+.clock-actions{display:flex;gap:12px;justify-content:center;margin:20px 0}
+.clock-btn{padding:14px 40px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s}
+.clock-btn:hover{transform:translateY(-1px)}
+.clock-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-ci{background:var(--ok);color:#fff}
+.btn-co{background:var(--wn);color:#fff}
+
+.session-info{margin-top:16px;padding:16px;background:var(--g50);border-radius:10px;border:1px solid var(--g200)}
+.slabel{font-size:12px;color:var(--g500);text-transform:uppercase;letter-spacing:.5px}
+.svalue{font-size:15px;font-weight:600;margin-top:2px}
+.srow{display:flex;gap:24px;margin-top:8px}
+.scol{flex:1}
+
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.vcard{padding:14px;border-radius:10px;border:1px solid var(--g200);background:var(--g50);text-align:center}
+.vcard.signed{border-color:var(--ok);background:var(--okb)}
+.vdept{font-size:13px;font-weight:600;color:var(--g700)}
+.vstatus{font-size:12px;margin-top:4px;color:var(--g500)}
+.vcard.signed .vstatus{color:var(--ok)}
+.vtime{font-size:11px;color:var(--g500);margin-top:2px}
+
+.svlist{display:flex;flex-direction:column;gap:10px}
+.svitem{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--g50);border-radius:10px;border:1px solid var(--g200)}
+.svname{font-weight:600;font-size:15px}
+.svtime{font-size:13px;color:var(--g500)}
+.vbadges{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.mbadge{font-size:11px;padding:2px 8px;border-radius:10px}
+.mbadge.done{background:var(--okb);color:var(--ok)}
+.mbadge.pend{background:var(--g100);color:var(--g500)}
+.signbtn{padding:8px 18px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:var(--p);color:#fff}
+.signbtn:hover{background:var(--ph)}
+.signedlbl{color:var(--ok);font-weight:600;font-size:13px}
+
+.btn{padding:10px 18px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--ph)}
+.btn-d{background:var(--er);color:#fff}
+.btn-s{padding:6px 12px;font-size:13px}
+.btn-g{background:transparent;color:var(--g500)}.btn-g:hover{background:var(--g100)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px;border-bottom:2px solid var(--g200);color:var(--g500);font-weight:500;font-size:12px;text-transform:uppercase}
+td{padding:10px;border-bottom:1px solid var(--g100)}
+tr:hover td{background:var(--g50)}
+
+.frow{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.frow select,.frow input{padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-size:13px;outline:none}
+
+.aform{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.aform input,.aform select{padding:10px 14px;border:1px solid var(--g200);border-radius:8px;font-size:14px;outline:none}
+.ulist{display:flex;flex-direction:column;gap:8px}
+.uitem{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--g50);border-radius:8px;border:1px solid var(--g200)}
+.uname{font-weight:500}
+.ubadge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--pb);color:var(--p);font-weight:500}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.scard{background:var(--g50);border-radius:10px;padding:16px;border:1px solid var(--g200)}
+.sl{font-size:12px;color:var(--g500);margin-bottom:4px}
+.sv{font-size:24px;font-weight:700}
+
+.empty{text-align:center;padding:40px;color:var(--g500)}
+.empty .ic{font-size:36px;margin-bottom:10px}
+
+.gpscfg{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.gpscfg label{font-size:13px;color:var(--g500);display:flex;flex-direction:column;gap:4px}
+.gpscfg input{padding:8px 12px;border:1px solid var(--g200);border-radius:8px;font-size:14px;outline:none;width:160px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-size:14px;font-weight:500;z-index:999;box-shadow:var(--sl);transition:opacity .3s;opacity:0}
+.toast.show{opacity:1}
+.toast.suc{background:var(--ok);color:#fff}
+.toast.err{background:var(--er);color:#fff}
+.toast.wrn{background:var(--wn);color:#fff}
+
+@media(max-width:600px){.vgrid{grid-template-columns:1fr}.srow{flex-direction:column;gap:8px}.login-box{padding:28px 20px}.container{padding:16px}.aform{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h2>Clinic Attendance</h2>
+    <p class="sub">Sign in to record your attendance</p>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole('intern')">Intern</button>
+      <button class="role-tab" onclick="setRole('staff')">Staff</button>
+      <button class="role-tab" onclick="setRole('admin')">Admin</button>
+    </div>
+    <div id="loginError" class="login-error"></div>
+    <div id="gpsStatus" class="gps-status gps-checking">Checking location...</div>
+    <div id="fIntern">
+      <label>Select Your Name</label>
+      <select id="loginName"><option value="">-- Choose --</option></select>
+    </div>
+    <div id="fStaff" style="display:none">
+      <label>Department</label>
+      <select id="loginDept">
+        <option value="">-- Choose --</option>
+        <option value="Front Desk">Front Desk</option>
+        <option value="Supervisor">Supervisor</option>
+        <option value="Clinic Manager">Clinic Manager</option>
+        <option value="Academic Office">Academic Office</option>
+      </select>
+    </div>
+    <div id="fAdmin" style="display:none">
+      <label>Admin Account</label>
+      <select id="loginAdmin"><option value="">-- Choose --</option></select>
+    </div>
+    <label>Password</label>
+    <input type="password" id="loginPw" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" style="display:none">
+  <div class="header">
+    <h1>Clinic Attendance</h1>
+    <div class="header-right">
+      <span class="header-user" id="hUser"></span>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- INTERN -->
+  <div id="vIntern" class="container" style="display:none">
+    <div class="card clock-display">
+      <div class="big-time" id="iClock">00:00:00</div>
+      <div class="big-date" id="iDate"></div>
+      <div class="clock-actions">
+        <button class="clock-btn btn-ci" id="bCI" onclick="doClockIn()">Clock In</button>
+        <button class="clock-btn btn-co" id="bCO" onclick="doClockOut()" disabled>Clock Out</button>
+      </div>
+      <div class="session-info" id="sessInfo" style="display:none">
+        <div class="srow">
+          <div class="scol"><div class="slabel">Clock In</div><div class="svalue" id="sIn">--</div></div>
+          <div class="scol"><div class="slabel">Clock Out</div><div class="svalue" id="sOut">--</div></div>
+          <div class="scol"><div class="slabel">Duration</div><div class="svalue" id="sDur">--</div></div>
+        </div>
+        <div class="slabel" style="margin:12px 0 8px">Verification Signatures</div>
+        <div class="vgrid" id="iVerify"></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">My History</div><div id="iHistory"></div></div>
+  </div>
+
+  <!-- STAFF -->
+  <div id="vStaff" class="container" style="display:none">
+    <div class="card">
+      <div class="card-title" id="sTitle">Verify Attendance</div>
+      <p style="font-size:13px;color:var(--g500);margin-bottom:16px" id="sSub"></p>
+      <div class="svlist" id="svList"></div>
+    </div>
+    <div class="card"><div class="card-title">Today's Summary</div><div id="sSummary"></div></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="vAdmin" class="container" style="display:none">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="aTab('users')">Users</button>
+      <button class="tab-btn" onclick="aTab('records')">Records</button>
+      <button class="tab-btn" onclick="aTab('stats')">Statistics</button>
+      <button class="tab-btn" onclick="aTab('settings')">Settings</button>
+    </div>
+    <div class="tab-content active" id="a-users">
+      <div class="card">
+        <div class="card-title">Add New User</div>
+        <div class="aform">
+          <input type="text" id="nuName" placeholder="Full name">
+          <select id="nuRole"><option value="intern">Intern</option><option value="Front Desk">Front Desk</option><option value="Supervisor">Supervisor</option><option value="Clinic Manager">Clinic Manager</option><option value="Academic Office">Academic Office</option><option value="admin">Admin</option></select>
+          <input type="password" id="nuPass" placeholder="Password">
+          <button class="btn btn-p" onclick="addUser()">Add User</button>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">Interns</div><div class="ulist" id="ulInterns"></div></div>
+      <div class="card"><div class="card-title">Staff &amp; Admins</div><div class="ulist" id="ulStaff"></div></div>
+    </div>
+    <div class="tab-content" id="a-records">
+      <div class="card">
+        <div class="card-title">All Records</div>
+        <div class="frow">
+          <select id="afPerson" onchange="rRecords()"><option value="">All</option></select>
+          <input type="date" id="afFrom" onchange="rRecords()"><span style="color:var(--g500)">to</span>
+          <input type="date" id="afTo" onchange="rRecords()">
+          <button class="btn btn-s btn-g" onclick="clrF()">Clear</button>
+          <div style="flex:1"></div>
+          <button class="btn btn-s btn-p" onclick="expCSV()">Export CSV</button>
+        </div>
+        <div id="aRecTbl"></div>
+      </div>
+    </div>
+    <div class="tab-content" id="a-stats">
+      <div class="card">
+        <div class="card-title">Statistics</div>
+        <div class="frow">
+          <select id="asIntern" onchange="rStats()"><option value="">All</option></select>
+          <select id="asRange" onchange="rStats()"><option value="week">This Week</option><option value="month">This Month</option><option value="all">All Time</option></select>
+        </div>
+        <div class="sgrid" id="asGrid"></div>
+        <div id="asTbl"></div>
+      </div>
+    </div>
+    <div class="tab-content" id="a-settings">
+      <div class="card">
+        <div class="card-title">Clinic GPS Location</div>
+        <p style="font-size:13px;color:var(--g500);margin-bottom:12px">Interns must be within this radius to clock in.</p>
+        <div class="gpscfg">
+          <label>Latitude<input type="text" id="cLat" placeholder="e.g. 34.0522"></label>
+          <label>Longitude<input type="text" id="cLng" placeholder="e.g. -118.2437"></label>
+          <label>Radius (m)<input type="number" id="cRad" placeholder="200" min="50" max="5000"></label>
+          <button class="btn btn-p" onclick="saveGPS()" style="align-self:end">Save</button>
+          <button class="btn btn-g" onclick="useMyLoc()" style="align-self:end">Use My Location</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEPTS=['Front Desk','Supervisor','Clinic Manager','Academic Office'];
+let DATA={users:[],records:[],gps:{}};
+let CUR=null; // current user {name, role}
+let loginRole='intern';
+
+// ── API ──
+async function api(url,body){
+  const opt=body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{};
+  const r=await fetch(url,opt);
+  return r.json();
+}
+async function reload(){DATA=await api('/api/data');refreshAll();}
+
+// ── Helpers ──
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${P(d.getMonth()+1)}-${P(d.getDate())}`}
+function nowTime(){const d=new Date();return `${P(d.getHours())}:${P(d.getMinutes())}:${P(d.getSeconds())}`}
+function P(n){return String(n).padStart(2,'0')}
+function E(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(m,t='suc'){const e=document.getElementById('toast');e.textContent=m;e.className='toast show '+t;setTimeout(()=>e.classList.remove('show'),3000)}
+function cH(f,t){const[fh,fm,fs]=f.split(':').map(Number),[th,tm,ts]=t.split(':').map(Number);return((th*3600+tm*60+(ts||0))-(fh*3600+fm*60+(fs||0)))/3600}
+function fH(h){return h<0?'0.0':h.toFixed(1)}
+function isStaff(r){return DEPTS.includes(r)}
+
+// ── GPS ──
+function getDist(a1,o1,a2,o2){const R=6371000,r=x=>x*Math.PI/180,d1=r(a2-a1),d2=r(o2-o1),a=Math.sin(d1/2)**2+Math.cos(r(a1))*Math.cos(r(a2))*Math.sin(d2/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function checkGPS(){
+  return new Promise(res=>{
+    const el=document.getElementById('gpsStatus');
+    if(!DATA.gps||!DATA.gps.lat){el.className='gps-status gps-fail';el.textContent='Clinic location not set. Contact admin.';res(false);return}
+    if(!navigator.geolocation){el.className='gps-status gps-fail';el.textContent='Geolocation not supported.';res(false);return}
+    el.className='gps-status gps-checking';el.textContent='Checking location...';
+    navigator.geolocation.getCurrentPosition(p=>{
+      const d=getDist(p.coords.latitude,p.coords.longitude,DATA.gps.lat,DATA.gps.lng);
+      if(d<=DATA.gps.radius){el.className='gps-status gps-ok';el.textContent=`At clinic (${Math.round(d)}m away).`;res(true)}
+      else{el.className='gps-status gps-fail';el.textContent=`${Math.round(d)}m away. Must be within ${DATA.gps.radius}m.`;res(false)}
+    },()=>{el.className='gps-status gps-fail';el.textContent='Location denied. Enable location services.';res(false)},{enableHighAccuracy:true,timeout:10000});
+  });
+}
+
+// ── Login ──
+function setRole(r){
+  loginRole=r;
+  document.querySelectorAll('#loginScreen .role-tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('fIntern').style.display=r==='intern'?'block':'none';
+  document.getElementById('fStaff').style.display=r==='staff'?'block':'none';
+  document.getElementById('fAdmin').style.display=r==='admin'?'block':'none';
+  document.getElementById('gpsStatus').style.display=r==='intern'?'block':'none';
+  document.getElementById('loginError').classList.remove('show');
+  if(r==='intern')checkGPS();
+}
+function popSelects(){
+  const int=DATA.users.filter(u=>u.role==='intern'),adm=DATA.users.filter(u=>u.role==='admin');
+  const io=int.map(u=>`<option value="${E(u.name)}">${E(u.name)}</option>`).join('');
+  document.getElementById('loginName').innerHTML='<option value="">-- Choose --</option>'+io;
+  document.getElementById('loginAdmin').innerHTML='<option value="">-- Choose --</option>'+adm.map(u=>`<option value="${E(u.name)}">${E(u.name)}</option>`).join('');
+  const af=document.getElementById('afPerson');if(af)af.innerHTML='<option value="">All</option>'+io;
+  const si=document.getElementById('asIntern');if(si)si.innerHTML='<option value="">All</option>'+io;
+}
+function showErr(m){const e=document.getElementById('loginError');e.textContent=m;e.classList.add('show')}
+
+async function doLogin(){
+  document.getElementById('loginError').classList.remove('show');
+  const pw=document.getElementById('loginPw').value;
+  let user=null;
+  if(loginRole==='intern'){
+    const n=document.getElementById('loginName').value;
+    if(!n){showErr('Select your name.');return}
+    user=DATA.users.find(u=>u.name===n&&u.role==='intern');
+    if(!user||user.password!==pw){showErr('Wrong password.');return}
+    const ok=await checkGPS();
+    if(!ok){showErr('Must be at clinic to sign in.');return}
+  }else if(loginRole==='staff'){
+    const d=document.getElementById('loginDept').value;
+    if(!d){showErr('Select department.');return}
+    user=DATA.users.find(u=>u.role===d);
+    if(!user||user.password!==pw){showErr('Wrong password.');return}
+  }else{
+    const n=document.getElementById('loginAdmin').value;
+    if(!n){showErr('Select account.');return}
+    user=DATA.users.find(u=>u.name===n&&u.role==='admin');
+    if(!user||user.password!==pw){showErr('Wrong password.');return}
+  }
+  CUR={name:user.name,role:user.role};
+  document.getElementById('loginPw').value='';
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('hUser').textContent=`${CUR.name} (${CUR.role})`;
+  document.getElementById('vIntern').style.display='none';
+  document.getElementById('vStaff').style.display='none';
+  document.getElementById('vAdmin').style.display='none';
+  if(CUR.role==='intern'){document.getElementById('vIntern').style.display='block';rIntern()}
+  else if(isStaff(CUR.role)){document.getElementById('vStaff').style.display='block';document.getElementById('sTitle').textContent=CUR.role+' — Verify Attendance';document.getElementById('sSub').textContent='Sign off as '+CUR.role+' to confirm interns are present.';rStaff()}
+  else{document.getElementById('vAdmin').style.display='block';rAdmin()}
+}
+
+function doLogout(){CUR=null;document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';if(loginRole==='intern')checkGPS()}
+
+// ── Intern View ──
+function getToday(){return DATA.records.find(r=>r.name===CUR.name&&r.date===todayStr())}
+
+function rIntern(){
+  const rec=getToday(),bI=document.getElementById('bCI'),bO=document.getElementById('bCO');
+  if(!rec||!rec.clockIn){bI.disabled=false;bO.disabled=true;document.getElementById('sessInfo').style.display='none'}
+  else if(!rec.clockOut){bI.disabled=true;bO.disabled=false;showSess(rec)}
+  else{bI.disabled=true;bO.disabled=true;showSess(rec)}
+  rHistory();
+}
+function showSess(r){
+  document.getElementById('sessInfo').style.display='block';
+  document.getElementById('sIn').textContent=r.clockIn;
+  document.getElementById('sOut').textContent=r.clockOut||'Working...';
+  document.getElementById('sDur').textContent=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut))+'h':'--';
+  document.getElementById('iVerify').innerHTML=DEPTS.map(d=>{
+    const s=r.signatures&&r.signatures[d];
+    return s?`<div class="vcard signed"><div class="vdept">${d}</div><div class="vstatus">Verified</div><div class="vtime">by ${E(s.by)} at ${s.time}</div></div>`
+      :`<div class="vcard"><div class="vdept">${d}</div><div class="vstatus">Pending</div></div>`;
+  }).join('');
+}
+
+async function doClockIn(){
+  const r=await api('/api/clockin',{name:CUR.name,date:todayStr(),time:nowTime()});
+  if(r.ok){toast('Clocked in!');await reload();rIntern()}else toast(r.msg,'wrn');
+}
+async function doClockOut(){
+  const r=await api('/api/clockout',{name:CUR.name,date:todayStr(),time:nowTime()});
+  if(r.ok){toast('Clocked out!');await reload();rIntern()}else toast(r.msg,'wrn');
+}
+
+function rHistory(){
+  const el=document.getElementById('iHistory');
+  const recs=DATA.records.filter(r=>r.name===CUR.name).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!recs.length){el.innerHTML='<div class="empty"><div class="ic">&#128196;</div>No records yet.</div>';return}
+  el.innerHTML=`<table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Verified</th></tr></thead><tbody>${recs.map(r=>{
+    const h=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut))+'h':'--';
+    const sg=DEPTS.filter(d=>r.signatures&&r.signatures[d]).length;
+    return `<tr><td>${r.date}</td><td>${r.clockIn||'--'}</td><td>${r.clockOut||'--'}</td><td>${h}</td><td>${sg}/${DEPTS.length}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+// ── Staff View ──
+function rStaff(){
+  const today=todayStr(),dept=CUR.role;
+  const recs=DATA.records.filter(r=>r.date===today&&r.clockIn);
+  const el=document.getElementById('svList');
+  if(!recs.length){el.innerHTML='<div class="empty"><div class="ic">&#128203;</div>No interns clocked in today.</div>';document.getElementById('sSummary').innerHTML='';return}
+  el.innerHTML=recs.map(r=>{
+    const signed=r.signatures&&r.signatures[dept];
+    const badges=DEPTS.map(d=>`<span class="mbadge ${r.signatures&&r.signatures[d]?'done':'pend'}">${d.split(' ').map(w=>w[0]).join('')}: ${r.signatures&&r.signatures[d]?'Yes':'No'}</span>`).join('');
+    return `<div class="svitem"><div><div class="svname">${E(r.name)}</div><div class="svtime">${r.clockIn}${r.clockOut?' — '+r.clockOut:' (working)'}</div><div class="vbadges">${badges}</div></div><div>${signed?'<span class="signedlbl">Signed &#10003;</span>':`<button class="signbtn" onclick="staffSign('${E(r.name)}','${r.date}')">Sign Off</button>`}</div></div>`;
+  }).join('');
+  document.getElementById('sSummary').innerHTML=`<table><thead><tr><th>Intern</th><th>In</th><th>Out</th>${DEPTS.map(d=>`<th>${d.split(' ').map(w=>w[0]).join('')}</th>`).join('')}</tr></thead><tbody>${recs.map(r=>`<tr><td>${E(r.name)}</td><td>${r.clockIn}</td><td>${r.clockOut||'--'}</td>${DEPTS.map(d=>`<td style="color:${r.signatures&&r.signatures[d]?'var(--ok)':'var(--g300)'}">${r.signatures&&r.signatures[d]?'&#10003;':'&#10005;'}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+async function staffSign(name,date){
+  await api('/api/sign',{date,internName:name,dept:CUR.role,staffName:CUR.name,time:nowTime()});
+  toast(`Signed off for ${name}.`);
+  await reload();rStaff();
+}
+
+// ── Admin View ──
+function aTab(t){
+  document.querySelectorAll('#vAdmin .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#vAdmin .tab-content').forEach(c=>c.classList.remove('active'));
+  const ts=['users','records','stats','settings'];
+  document.querySelectorAll('#vAdmin .tab-btn')[ts.indexOf(t)].classList.add('active');
+  document.getElementById('a-'+t).classList.add('active');
+  if(t==='records')rRecords();if(t==='stats')rStats();if(t==='settings')loadGPS();
+}
+function rAdmin(){rUsers();popSelects();loadGPS()}
+
+async function addUser(){
+  const n=document.getElementById('nuName').value.trim(),r=document.getElementById('nuRole').value,p=document.getElementById('nuPass').value;
+  if(!n||!p){toast('Name & password required.','err');return}
+  if(DATA.users.find(u=>u.name===n&&u.role===r)){toast('Already exists.','err');return}
+  DATA.users.push({name:n,role:r,password:p});
+  await api('/api/users',{users:DATA.users});
+  document.getElementById('nuName').value='';document.getElementById('nuPass').value='';
+  toast(`Added ${n} (${r}).`);await reload();
+}
+async function removeUser(n,r){
+  if(!confirm(`Remove "${n}"?`))return;
+  DATA.users=DATA.users.filter(u=>!(u.name===n&&u.role===r));
+  await api('/api/users',{users:DATA.users});toast(`Removed ${n}.`);await reload();
+}
+async function resetPw(n,r){
+  const p=prompt(`New password for ${n}:`);if(!p)return;
+  const u=DATA.users.find(u=>u.name===n&&u.role===r);
+  if(u){u.password=p;await api('/api/users',{users:DATA.users});toast(`Password reset.`)}
+}
+
+function rUsers(){
+  const int=DATA.users.filter(u=>u.role==='intern'),stf=DATA.users.filter(u=>u.role!=='intern');
+  document.getElementById('ulInterns').innerHTML=int.length?int.map(uHTML).join(''):'<div class="empty">No interns yet.</div>';
+  document.getElementById('ulStaff').innerHTML=stf.map(uHTML).join('');
+}
+function uHTML(u){
+  return `<div class="uitem"><div><span class="uname">${E(u.name)}</span> <span class="ubadge">${E(u.role)}</span></div><div style="display:flex;gap:6px"><button class="btn btn-s btn-g" onclick="resetPw('${E(u.name)}','${E(u.role)}')">Reset PW</button>${u.role!=='admin'||DATA.users.filter(x=>x.role==='admin').length>1?`<button class="btn btn-s btn-g" style="color:var(--er)" onclick="removeUser('${E(u.name)}','${E(u.role)}')">Remove</button>`:''}</div></div>`;
+}
+
+function rRecords(){
+  let recs=[...DATA.records].sort((a,b)=>b.date.localeCompare(a.date));
+  const p=document.getElementById('afPerson').value,f=document.getElementById('afFrom').value,t=document.getElementById('afTo').value;
+  if(p)recs=recs.filter(r=>r.name===p);if(f)recs=recs.filter(r=>r.date>=f);if(t)recs=recs.filter(r=>r.date<=t);
+  const el=document.getElementById('aRecTbl');
+  if(!recs.length){el.innerHTML='<div class="empty">No records.</div>';return}
+  el.innerHTML=`<table><thead><tr><th>Date</th><th>Name</th><th>In</th><th>Out</th><th>Hours</th>${DEPTS.map(d=>`<th>${d.split(' ').map(w=>w[0]).join('')}</th>`).join('')}<th></th></tr></thead><tbody>${recs.map(r=>{
+    const h=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut))+'h':'--';
+    return `<tr><td>${r.date}</td><td>${E(r.name)}</td><td>${r.clockIn||'--'}</td><td>${r.clockOut||'--'}</td><td>${h}</td>${DEPTS.map(d=>`<td style="color:${r.signatures&&r.signatures[d]?'var(--ok)':'var(--g300)'}">${r.signatures&&r.signatures[d]?'&#10003;':'&#10005;'}</td>`).join('')}<td><button class="btn btn-s btn-g" style="color:var(--er)" onclick="delRec('${E(r.name)}','${r.date}')">&#10005;</button></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+async function delRec(n,d){if(!confirm('Delete?'))return;await api('/api/delete-record',{name:n,date:d});toast('Deleted.');await reload()}
+function clrF(){document.getElementById('afPerson').value='';document.getElementById('afFrom').value='';document.getElementById('afTo').value='';rRecords()}
+
+function rStats(){
+  const person=document.getElementById('asIntern').value,range=document.getElementById('asRange').value;
+  const now=new Date();let fd;
+  if(range==='week'){const d=now.getDay()||7;fd=new Date(now);fd.setDate(now.getDate()-d+1)}
+  else if(range==='month')fd=new Date(now.getFullYear(),now.getMonth(),1);
+  else fd=new Date(2000,0,1);
+  const fs=`${fd.getFullYear()}-${P(fd.getMonth()+1)}-${P(fd.getDate())}`;
+  const ppl=person?[person]:DATA.users.filter(u=>u.role==='intern').map(u=>u.name);
+  const gE=document.getElementById('asGrid'),tE=document.getElementById('asTbl');
+  if(!ppl.length){gE.innerHTML='<div class="empty">No data.</div>';tE.innerHTML='';return}
+  const stats=ppl.map(n=>{const rs=DATA.records.filter(r=>r.name===n&&r.date>=fs&&r.clockIn);let tot=0,full=0;rs.forEach(r=>{if(r.clockIn&&r.clockOut)tot+=cH(r.clockIn,r.clockOut);if(r.signatures&&DEPTS.every(d=>r.signatures[d]))full++});return{n,days:rs.length,tot:tot.toFixed(1),avg:rs.length?(tot/rs.length).toFixed(1):'0',full}});
+  if(stats.length===1){const s=stats[0];gE.innerHTML=`<div class="scard"><div class="sl">Days</div><div class="sv">${s.days}</div></div><div class="scard"><div class="sl">Total Hours</div><div class="sv">${s.tot}h</div></div><div class="scard"><div class="sl">Avg/Day</div><div class="sv">${s.avg}h</div></div><div class="scard"><div class="sl">Fully Verified</div><div class="sv">${s.full}/${s.days}</div></div>`;tE.innerHTML=''}
+  else{gE.innerHTML='';tE.innerHTML=`<table><thead><tr><th>Intern</th><th>Days</th><th>Total</th><th>Avg</th><th>Verified</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${E(s.n)}</td><td>${s.days}</td><td>${s.tot}h</td><td>${s.avg}h</td><td>${s.full}/${s.days}</td></tr>`).join('')}</tbody></table>`}
+}
+
+function loadGPS(){document.getElementById('cLat').value=DATA.gps.lat||'';document.getElementById('cLng').value=DATA.gps.lng||'';document.getElementById('cRad').value=DATA.gps.radius||200}
+async function saveGPS(){
+  const lat=parseFloat(document.getElementById('cLat').value),lng=parseFloat(document.getElementById('cLng').value),r=parseInt(document.getElementById('cRad').value)||200;
+  if(isNaN(lat)||isNaN(lng)){toast('Enter valid coordinates.','err');return}
+  await api('/api/gps',{lat,lng,radius:r});toast('Location saved!');await reload();
+}
+function useMyLoc(){navigator.geolocation.getCurrentPosition(p=>{document.getElementById('cLat').value=p.coords.latitude.toFixed(6);document.getElementById('cLng').value=p.coords.longitude.toFixed(6);toast('Detected. Click Save.')},()=>toast('Failed.','err'))}
+
+function expCSV(){
+  const h=['Date','Name','In','Out','Hours',...DEPTS.map(d=>d+' Verified')];
+  const rows=[h.join(',')];
+  DATA.records.sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
+    const hr=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut)):'';
+    rows.push([r.date,r.name,r.clockIn||'',r.clockOut||'',hr,...DEPTS.map(d=>r.signatures&&r.signatures[d]?'Yes':'No')].join(','));
+  });
+  const b=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='attendance.csv';a.click();
+}
+
+function refreshAll(){popSelects();if(CUR){if(CUR.role==='intern')rIntern();else if(isStaff(CUR.role))rStaff();else rAdmin()}}
+
+// ── Clock ──
+setInterval(()=>{
+  const now=new Date();
+  const t=now.toLocaleTimeString('en-US',{hour12:false});
+  const d=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const ic=document.getElementById('iClock');if(ic)ic.textContent=t;
+  const id=document.getElementById('iDate');if(id)id.textContent=d;
+  if(CUR&&CUR.role==='intern'){const rec=getToday();if(rec&&rec.clockIn&&!rec.clockOut)document.getElementById('sDur').textContent=fH(cH(rec.clockIn,t))+'h'}
+},1000);
+
+// Auto-refresh data every 15 seconds for real-time sync
+setInterval(async()=>{if(CUR){DATA=await api('/api/data');refreshAll()}},15000);
+
+// ── Init ──
+reload();
+</script>
+</body>
+</html>
