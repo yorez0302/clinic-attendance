@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340" width="300" height="340">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3a6e"/>
+      <stop offset="100%" stop-color="#0f2548"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4a84b"/>
+      <stop offset="100%" stop-color="#b8922e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield shape -->
+  <path d="M150 10 L280 50 L280 180 Q280 280 150 330 Q20 280 20 180 L20 50 Z" fill="url(#shieldGrad)" stroke="url(#goldGrad)" stroke-width="4"/>
+
+  <!-- Inner shield border -->
+  <path d="M150 25 L268 60 L268 178 Q268 270 150 318 Q32 270 32 178 L32 60 Z" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+
+  <!-- Book (open book symbol) -->
+  <g transform="translate(150,125)" fill="url(#goldGrad)">
+    <!-- Left page -->
+    <path d="M-4 -20 Q-35 -25 -50 -15 L-50 20 Q-35 10 -4 15 Z" fill="none" stroke="#d4a84b" stroke-width="2"/>
+    <!-- Right page -->
+    <path d="M4 -20 Q35 -25 50 -15 L50 20 Q35 10 4 15 Z" fill="none" stroke="#d4a84b" stroke-width="2"/>
+    <!-- Spine -->
+    <line x1="0" y1="-22" x2="0" y2="17" stroke="#d4a84b" stroke-width="2"/>
+    <!-- Lines on left page -->
+    <line x1="-12" y1="-10" x2="-40" y2="-8" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+    <line x1="-12" y1="-2" x2="-40" y2="0" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+    <line x1="-12" y1="6" x2="-38" y2="7" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+    <!-- Lines on right page -->
+    <line x1="12" y1="-10" x2="40" y2="-8" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+    <line x1="12" y1="-2" x2="40" y2="0" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+    <line x1="12" y1="6" x2="38" y2="7" stroke="#d4a84b" stroke-width="1" opacity="0.6"/>
+  </g>
+
+  <!-- Torch above book -->
+  <g transform="translate(150,72)" fill="url(#goldGrad)">
+    <rect x="-3" y="0" width="6" height="30" rx="2"/>
+    <!-- Flame -->
+    <path d="M0 -5 Q-8 -15 -5 -25 Q-2 -18 0 -22 Q2 -18 5 -25 Q8 -15 0 -5Z" fill="#d4a84b"/>
+  </g>
+
+  <!-- Stars -->
+  <g fill="#d4a84b" opacity="0.9">
+    <polygon points="70,80 73,90 83,90 75,96 78,106 70,100 62,106 65,96 57,90 67,90" transform="scale(0.6) translate(10,10)"/>
+    <polygon points="230,80 233,90 243,90 235,96 238,106 230,100 222,106 225,96 217,90 227,90" transform="scale(0.6) translate(130,10)"/>
+  </g>
+
+  <!-- Yin-Yang small symbol (TCM reference) -->
+  <g transform="translate(150,175)">
+    <circle cx="0" cy="0" r="12" fill="none" stroke="#d4a84b" stroke-width="1.5"/>
+    <path d="M0 -12 A12 12 0 0 1 0 12 A6 6 0 0 0 0 0 A6 6 0 0 1 0 -12Z" fill="#d4a84b"/>
+    <circle cx="0" cy="-6" r="2" fill="#0f2548"/>
+    <circle cx="0" cy="6" r="2" fill="#d4a84b"/>
+  </g>
+
+  <!-- Text: CALIFORNIA UNIVERSITY -->
+  <text x="150" y="218" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="16" font-weight="bold" fill="#d4a84b" letter-spacing="2">CALIFORNIA</text>
+  <text x="150" y="238" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="16" font-weight="bold" fill="#d4a84b" letter-spacing="2">UNIVERSITY</text>
+
+  <!-- Decorative line -->
+  <line x1="70" y1="248" x2="230" y2="248" stroke="#d4a84b" stroke-width="1"/>
+
+  <!-- SILICON VALLEY -->
+  <text x="150" y="268" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="14" fill="#d4a84b" letter-spacing="3">SILICON VALLEY</text>
+
+  <!-- Year -->
+  <text x="150" y="295" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#d4a84b" letter-spacing="1">EST. 2007</text>
+</svg>

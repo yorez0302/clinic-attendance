@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clinic Intern Attendance</title>
+<title>CUSV Clinic Attendance</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
 <style>
 :root{--p:#4f46e5;--ph:#4338ca;--pb:#eef2ff;--ok:#059669;--okb:#d1fae5;--wn:#d97706;--wnb:#fef3c7;--er:#dc2626;--erb:#fee2e2;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g500:#6b7280;--g700:#374151;--g900:#111827;--r:12px;--s:0 1px 3px rgba(0,0,0,.08);--sl:0 10px 25px rgba(0,0,0,.1)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
 
 .header{background:#fff;border-bottom:1px solid var(--g200);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.header h1{font-size:18px;font-weight:700;color:var(--p)}
+.header h1{font-size:18px;font-weight:700;color:var(--p);display:flex;align-items:center;gap:10px}
+.header h1 img{height:36px;width:auto}
 .header-right{display:flex;align-items:center;gap:12px;font-size:13px}
 .header-user{font-weight:600;color:var(--g700)}
 .logout-btn{padding:6px 14px;border:1px solid var(--g200);background:#fff;border-radius:6px;font-size:13px;cursor:pointer}
 
 .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2)}
 .login-box{background:#fff;border-radius:16px;padding:40px;width:400px;max-width:92vw;box-shadow:var(--sl)}
+.login-logo{text-align:center;margin-bottom:16px}
+.login-logo img{height:100px;width:auto}
 .login-box h2{font-size:22px;text-align:center;margin-bottom:6px}
 .login-box .sub{text-align:center;color:var(--g500);font-size:14px;margin-bottom:28px}
 .login-box label{display:block;font-size:13px;font-weight:500;color:var(--g700);margin-bottom:6px}
@@ -116,6 +120,26 @@ tr:hover td{background:var(--g50)}
 .toast.err{background:var(--er);color:#fff}
 .toast.wrn{background:var(--wn);color:#fff}
 
+/* Camera Modal */
+.cam-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.cam-overlay.open{display:flex}
+.cam-box{background:#fff;border-radius:16px;padding:24px;width:400px;max-width:92vw;text-align:center}
+.cam-box h3{font-size:18px;margin-bottom:4px}
+.cam-box .cam-sub{font-size:13px;color:var(--g500);margin-bottom:16px}
+.cam-video{width:100%;border-radius:10px;background:#000;aspect-ratio:4/3;object-fit:cover}
+.cam-preview{width:100%;border-radius:10px;display:none}
+.cam-actions{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.cam-btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.cam-capture{background:var(--ok);color:#fff}
+.cam-retake{background:var(--g200);color:var(--g700)}
+.cam-confirm{background:var(--p);color:#fff}
+.cam-cancel{background:transparent;color:var(--g500);border:1px solid var(--g200);padding:10px 20px;border-radius:8px;font-size:13px;cursor:pointer;margin-top:10px}
+.photo-thumb{width:50px;height:50px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid var(--g200)}
+.photo-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:center;justify-content:center;cursor:pointer}
+.photo-modal.open{display:flex}
+.photo-modal img{max-width:90vw;max-height:90vh;border-radius:12px}
+.selfie-thumb{width:60px;height:60px;border-radius:10px;object-fit:cover;border:2px solid var(--ok);margin-top:8px}
+
 @media(max-width:600px){.vgrid{grid-template-columns:1fr}.srow{flex-direction:column;gap:8px}.login-box{padding:28px 20px}.container{padding:16px}.aform{flex-direction:column}}
 </style>
 </head>
@@ -125,7 +149,8 @@ tr:hover td{background:var(--g50)}
 <!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <h2>Clinic Attendance</h2>
+    <div class="login-logo"><img src="/logo.svg" alt="CUSV Logo"></div>
+    <h2>CUSV Clinic Attendance</h2>
     <p class="sub">Sign in to record your attendance</p>
     <div class="role-tabs">
       <button class="role-tab active" onclick="setRole('intern')">Intern</button>
@@ -161,7 +186,7 @@ tr:hover td{background:var(--g50)}
 <!-- APP -->
 <div id="appScreen" style="display:none">
   <div class="header">
-    <h1>Clinic Attendance</h1>
+    <h1><img src="/logo.svg" alt="CUSV"> CUSV Clinic Attendance</h1>
     <div class="header-right">
       <span class="header-user" id="hUser"></span>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -260,6 +285,30 @@ tr:hover td{background:var(--g50)}
       </div>
     </div>
   </div>
+</div>
+
+<!-- Camera Modal -->
+<div class="cam-overlay" id="camOverlay">
+  <div class="cam-box">
+    <h3>Selfie Check-In</h3>
+    <p class="cam-sub">Take a photo to confirm your presence</p>
+    <video class="cam-video" id="camVideo" autoplay playsinline></video>
+    <canvas id="camCanvas" style="display:none"></canvas>
+    <img class="cam-preview" id="camPreview">
+    <div class="cam-actions" id="camActions1">
+      <button class="cam-btn cam-capture" onclick="capturePhoto()">Take Photo</button>
+    </div>
+    <div class="cam-actions" id="camActions2" style="display:none">
+      <button class="cam-btn cam-retake" onclick="retakePhoto()">Retake</button>
+      <button class="cam-btn cam-confirm" onclick="confirmPhoto()">Confirm &amp; Clock In</button>
+    </div>
+    <button class="cam-cancel" onclick="cancelCamera()">Cancel</button>
+  </div>
+</div>
+
+<!-- Photo Viewer Modal -->
+<div class="photo-modal" id="photoModal" onclick="this.classList.remove('open')">
+  <img id="photoModalImg" src="">
 </div>
 
 <script>
@@ -380,6 +429,12 @@ function showSess(r){
   document.getElementById('sIn').textContent=r.clockIn;
   document.getElementById('sOut').textContent=r.clockOut||'Working...';
   document.getElementById('sDur').textContent=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut))+'h':'--';
+  // Show selfie photo if exists
+  const photoHTML=r.photo?`<div class="scol" style="text-align:center"><div class="slabel">Selfie</div><img class="selfie-thumb" src="/api/photo/${r.photo}" onclick="viewPhoto('${r.photo}')" title="Click to enlarge"></div>`:'';
+  const srow=document.querySelector('#sessInfo .srow');
+  const existingPhoto=srow.querySelector('.scol:nth-child(4)');
+  if(existingPhoto)existingPhoto.remove();
+  if(r.photo)srow.insertAdjacentHTML('beforeend',photoHTML);
   document.getElementById('iVerify').innerHTML=DEPTS.map(d=>{
     const s=r.signatures&&r.signatures[d];
     return s?`<div class="vcard signed"><div class="vdept">${d}</div><div class="vstatus">Verified</div><div class="vtime">by ${E(s.by)} at ${s.time}</div></div>`
@@ -387,9 +442,76 @@ function showSess(r){
   }).join('');
 }
 
-async function doClockIn(){
-  const r=await api('/api/clockin',{name:CUR.name,date:todayStr(),time:nowTime()});
-  if(r.ok){toast('Clocked in!');await reload();rIntern()}else toast(r.msg,'wrn');
+// ── Camera ──
+let camStream=null;
+let capturedPhoto=null;
+
+function doClockIn(){
+  // Open camera for selfie
+  openCamera();
+}
+
+async function openCamera(){
+  capturedPhoto=null;
+  document.getElementById('camOverlay').classList.add('open');
+  document.getElementById('camActions1').style.display='flex';
+  document.getElementById('camActions2').style.display='none';
+  document.getElementById('camVideo').style.display='block';
+  document.getElementById('camPreview').style.display='none';
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    document.getElementById('camVideo').srcObject=camStream;
+  }catch(e){
+    toast('Camera access denied. Please allow camera.','err');
+    cancelCamera();
+  }
+}
+
+function capturePhoto(){
+  const video=document.getElementById('camVideo');
+  const canvas=document.getElementById('camCanvas');
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  canvas.getContext('2d').drawImage(video,0,0);
+  capturedPhoto=canvas.toDataURL('image/jpeg',0.7);
+  document.getElementById('camPreview').src=capturedPhoto;
+  document.getElementById('camVideo').style.display='none';
+  document.getElementById('camPreview').style.display='block';
+  document.getElementById('camActions1').style.display='none';
+  document.getElementById('camActions2').style.display='flex';
+}
+
+function retakePhoto(){
+  capturedPhoto=null;
+  document.getElementById('camVideo').style.display='block';
+  document.getElementById('camPreview').style.display='none';
+  document.getElementById('camActions1').style.display='flex';
+  document.getElementById('camActions2').style.display='none';
+}
+
+async function confirmPhoto(){
+  if(!capturedPhoto){toast('Take a photo first.','wrn');return}
+  stopCamera();
+  document.getElementById('camOverlay').classList.remove('open');
+  toast('Uploading...','suc');
+  const r=await api('/api/clockin',{name:CUR.name,date:todayStr(),time:nowTime(),photo:capturedPhoto});
+  if(r.ok){toast('Clocked in with photo!');await reload();rIntern()}else toast(r.msg,'wrn');
+  capturedPhoto=null;
+}
+
+function cancelCamera(){
+  stopCamera();
+  capturedPhoto=null;
+  document.getElementById('camOverlay').classList.remove('open');
+}
+
+function stopCamera(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}
+}
+
+function viewPhoto(filename){
+  document.getElementById('photoModalImg').src='/api/photo/'+filename;
+  document.getElementById('photoModal').classList.add('open');
 }
 async function doClockOut(){
   const r=await api('/api/clockout',{name:CUR.name,date:todayStr(),time:nowTime()});
@@ -416,7 +538,8 @@ function rStaff(){
   el.innerHTML=recs.map(r=>{
     const signed=r.signatures&&r.signatures[dept];
     const badges=DEPTS.map(d=>`<span class="mbadge ${r.signatures&&r.signatures[d]?'done':'pend'}">${d.split(' ').map(w=>w[0]).join('')}: ${r.signatures&&r.signatures[d]?'Yes':'No'}</span>`).join('');
-    return `<div class="svitem"><div><div class="svname">${E(r.name)}</div><div class="svtime">${r.clockIn}${r.clockOut?' — '+r.clockOut:' (working)'}</div><div class="vbadges">${badges}</div></div><div>${signed?'<span class="signedlbl">Signed &#10003;</span>':`<button class="signbtn" onclick="staffSign('${E(r.name)}','${r.date}')">Sign Off</button>`}</div></div>`;
+    const photoTag=r.photo?`<img class="photo-thumb" src="/api/photo/${r.photo}" onclick="viewPhoto('${r.photo}')" style="margin-right:12px" title="Click to view">`:'';
+    return `<div class="svitem"><div style="display:flex;align-items:center">${photoTag}<div><div class="svname">${E(r.name)}</div><div class="svtime">${r.clockIn}${r.clockOut?' — '+r.clockOut:' (working)'}</div><div class="vbadges">${badges}</div></div></div><div>${signed?'<span class="signedlbl">Signed &#10003;</span>':`<button class="signbtn" onclick="staffSign('${E(r.name)}','${r.date}')">Sign Off</button>`}</div></div>`;
   }).join('');
   document.getElementById('sSummary').innerHTML=`<table><thead><tr><th>Intern</th><th>In</th><th>Out</th>${DEPTS.map(d=>`<th>${d.split(' ').map(w=>w[0]).join('')}</th>`).join('')}</tr></thead><tbody>${recs.map(r=>`<tr><td>${E(r.name)}</td><td>${r.clockIn}</td><td>${r.clockOut||'--'}</td>${DEPTS.map(d=>`<td style="color:${r.signatures&&r.signatures[d]?'var(--ok)':'var(--g300)'}">${r.signatures&&r.signatures[d]?'&#10003;':'&#10005;'}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 }
@@ -473,9 +596,10 @@ function rRecords(){
   if(p)recs=recs.filter(r=>r.name===p);if(f)recs=recs.filter(r=>r.date>=f);if(t)recs=recs.filter(r=>r.date<=t);
   const el=document.getElementById('aRecTbl');
   if(!recs.length){el.innerHTML='<div class="empty">No records.</div>';return}
-  el.innerHTML=`<table><thead><tr><th>Date</th><th>Name</th><th>In</th><th>Out</th><th>Hours</th>${DEPTS.map(d=>`<th>${d.split(' ').map(w=>w[0]).join('')}</th>`).join('')}<th></th></tr></thead><tbody>${recs.map(r=>{
+  el.innerHTML=`<table><thead><tr><th>Date</th><th>Name</th><th>Photo</th><th>In</th><th>Out</th><th>Hours</th>${DEPTS.map(d=>`<th>${d.split(' ').map(w=>w[0]).join('')}</th>`).join('')}<th></th></tr></thead><tbody>${recs.map(r=>{
     const h=(r.clockIn&&r.clockOut)?fH(cH(r.clockIn,r.clockOut))+'h':'--';
-    return `<tr><td>${r.date}</td><td>${E(r.name)}</td><td>${r.clockIn||'--'}</td><td>${r.clockOut||'--'}</td><td>${h}</td>${DEPTS.map(d=>`<td style="color:${r.signatures&&r.signatures[d]?'var(--ok)':'var(--g300)'}">${r.signatures&&r.signatures[d]?'&#10003;':'&#10005;'}</td>`).join('')}<td><button class="btn btn-s btn-g" style="color:var(--er)" onclick="delRec('${E(r.name)}','${r.date}')">&#10005;</button></td></tr>`;
+    const pht=r.photo?`<img class="photo-thumb" src="/api/photo/${r.photo}" onclick="viewPhoto('${r.photo}')">`:'--';
+    return `<tr><td>${r.date}</td><td>${E(r.name)}</td><td>${pht}</td><td>${r.clockIn||'--'}</td><td>${r.clockOut||'--'}</td><td>${h}</td>${DEPTS.map(d=>`<td style="color:${r.signatures&&r.signatures[d]?'var(--ok)':'var(--g300)'}">${r.signatures&&r.signatures[d]?'&#10003;':'&#10005;'}</td>`).join('')}<td><button class="btn btn-s btn-g" style="color:var(--er)" onclick="delRec('${E(r.name)}','${r.date}')">&#10005;</button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 async function delRec(n,d){if(!confirm('Delete?'))return;await api('/api/delete-record',{name:n,date:d});toast('Deleted.');await reload()}
