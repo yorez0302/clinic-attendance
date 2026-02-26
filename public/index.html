@@ -654,7 +654,10 @@ setInterval(()=>{
 setInterval(async()=>{if(CUR){DATA=await api('/api/data');refreshAll()}},15000);
 
 // ── Init ──
-reload();
+reload().then(()=>{
+  // Auto-check GPS on load for intern login
+  if(loginRole==='intern') checkGPS();
+});
 </script>
 </body>
 </html>
