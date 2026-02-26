@@ -24,9 +24,11 @@ async function connectDB() {
   if (usersCount === 0) {
     await db.collection('users').insertOne({ name: 'Admin', role: 'admin', password: 'admin123' });
   }
-  const settingsCount = await db.collection('settings').countDocuments();
-  if (settingsCount === 0) {
-    await db.collection('settings').insertOne({ key: 'gps', lat: null, lng: null, radius: 200 });
+  const gpsDoc = await db.collection('settings').findOne({ key: 'gps' });
+  if (!gpsDoc) {
+    await db.collection('settings').insertOne({ key: 'gps', lat: 37.3833788, lng: -122.0081765, radius: 200 });
+  } else if (!gpsDoc.lat) {
+    await db.collection('settings').updateOne({ key: 'gps' }, { $set: { lat: 37.3833788, lng: -122.0081765, radius: 200 } });
   }
 }
 
